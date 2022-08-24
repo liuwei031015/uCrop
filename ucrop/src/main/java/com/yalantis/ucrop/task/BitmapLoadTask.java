@@ -17,6 +17,7 @@ import com.yalantis.ucrop.model.ExifInfo;
 import com.yalantis.ucrop.util.BitmapLoadUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -100,7 +101,12 @@ public class BitmapLoadTask extends AsyncTask<Void, Void, BitmapLoadTask.BitmapW
         boolean decodeAttemptSuccess = false;
         while (!decodeAttemptSuccess) {
             try {
-                InputStream stream = mContext.getContentResolver().openInputStream(mInputUri);
+                InputStream stream = null;
+                if ("file".equalsIgnoreCase(mInputUri.getScheme())) {
+                    stream = new FileInputStream(new File(mInputUri.getPath()));
+                } else if ("content".equalsIgnoreCase(mInputUri.getScheme())) {
+                    stream = mContext.getContentResolver().openInputStream(mInputUri);
+                }
                 try {
                     decodeSampledBitmap = BitmapFactory.decodeStream(stream, null, options);
                     if (options.outWidth == -1 || options.outHeight == -1) {
